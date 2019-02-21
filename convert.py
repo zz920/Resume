@@ -11,7 +11,7 @@ from pywebcopy import save_website
 
 
 def start_grip_server(source_file):
-    process = subprocess.Popen(['grip', source_file])
+    process = subprocess.Popen(['grip', source_file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     # wait for server start
     time.sleep(0.5)
     if not process.poll():
@@ -30,12 +30,12 @@ def remove_title(content):
 
 def generate_html_file(target_folder):
     html_file = os.path.join(target_folder, "resume.html")
-    logging.getLogger().disabled = True
-    import ipdb; ipdb.set_trace()
+    # disable pywebcopy logger
+    logging.disable(logging.CRITICAL)
     save_website("http://localhost:6419", "/tmp", "resume")
-    static_file = os.path.join(target_folder, "__")
-    dir_util.copy_tree("/tmp/resume/localhost/__", static_file)
-    
+    static_files = os.path.join(target_folder, "__")
+    dir_util.copy_tree("/tmp/resume/localhost/__", static_files)
+
     with open(html_file, 'w') as f:
         with open("/tmp/resume/localhost/index.html", 'r') as tmpf:
             content = tmpf.read()
@@ -43,42 +43,47 @@ def generate_html_file(target_folder):
         f.write(content)
 
     dir_util.remove_tree("/tmp/resume")
-    return html_file
+    return html_file, static_files
 
 
 def generate_pdf_file(html_file, pdf_file):
-    subprocess.run("wkhtmltopdf {} {}".format(html_file, pdf_file), shell=True)
+    process = subprocess.Popen("wkhtmltopdf {} {}".format(html_file, pdf_file), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    process.communicate(timeout=3)
+    process.terminate()
 
 
-def process(source, target, format): 
+def process(source, target, format):
     source_file = os.path.abspath(source)
     if not os.path.isfile(source_file):
         print("The input file {} not exists, please input a valid markdown file!".format(source))
-        return False 
-    
+        return False
+
     target_folder = os.path.abspath(target)
     if not os.path.isdir(target_folder):
         print("The output folder {} not exists, please input a valid folder!".format(target))
-        return False 
+        return False
 
     process = start_grip_server(source_file)
     if not process:
         return False
     try:
-        html_file = generate_html_file(target_folder)
+        html_file, static_files = generate_html_file(target_folder)
     except:
-        return False
-    finally:
         close_grip_server(process)
+        return False
+    close_grip_server(process)
 
     if format == "html":
         print("The resume located in {}, please check".format(html_file))
         return True
-    
+
     pdf_file = os.path.join(target_folder, "resume.pdf")
     generate_pdf_file(html_file, pdf_file)
+
     if not os.path.isfile(pdf_file):
         print("FAILED TO GENERATE THE PDF!")
+    dir_util.remove_tree(static_files)
+    os.remove(html_file)
 
     return True
 

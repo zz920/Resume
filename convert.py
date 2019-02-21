@@ -3,10 +3,11 @@
 import re
 import time
 import os
-import requests
+import logging
 import subprocess
 import argparse
 from distutils import dir_util
+from pywebcopy import save_website
 
 
 def start_grip_server(source_file):
@@ -29,13 +30,19 @@ def remove_title(content):
 
 def generate_html_file(target_folder):
     html_file = os.path.join(target_folder, "resume.html")
+    logging.getLogger().disabled = True
+    import ipdb; ipdb.set_trace()
+    save_website("http://localhost:6419", "/tmp", "resume")
+    static_file = os.path.join(target_folder, "__")
+    dir_util.copy_tree("/tmp/resume/localhost/__", static_file)
+    
     with open(html_file, 'w') as f:
-        content = requests.get("http://localhost:6419").text
+        with open("/tmp/resume/localhost/index.html", 'r') as tmpf:
+            content = tmpf.read()
         content = remove_title(content)
         f.write(content)
 
-    static_file = os.path.join(target_folder, "__", "grip")
-    dir_util.copy_tree("grip", static_file)
+    dir_util.remove_tree("/tmp/resume")
     return html_file
 
 

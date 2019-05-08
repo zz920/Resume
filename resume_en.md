@@ -37,7 +37,9 @@ Software Engineer
 * Rewrite the interface to WKHtmlToPDF lib, promise the zero-down time during the peak time. 
 
 ### FMS(3rd party data syncing system)
-优化了原有的代码逻辑，重新设计了数据模型，将后端mongodb迁移到mysql，减小了大量内存开销。重写了大部分第三方同步逻辑，使代码更清晰易于维护。将系统容器化，重写了内部服务接口，并将系统从EC2迁移至ECS实现服务的自动弹性扩容/缩容。同时负责开发了日志系统，将日志文件自动同步至Elasticsearch服务器，并使用Kibana可视化。
+* Optimized the code logic, re-design the db models, and migrate the data from mongodb to mysql, reduce more than 50% query time and memory consumption.
+* Rewrite the syncing logic with 3rd Party delivery system. Enhance the reliability and maintainability of the server.
+* Dockerfy the system, migrate it from EC2 to ECS with auto-scalability. Optimized and migrated the log system to Elasticsearch/Kibana server.
 
 
 ### IMS/CCDS(Invoice system)

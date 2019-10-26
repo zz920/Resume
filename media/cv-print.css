@@ -76,11 +76,10 @@ em {
 h1 {
 	font-family: "Avenir Next",sans-serif;
 	text-align: center;
-	font-size: 50pt;
-	font-weight: lighter;
+	font-size: 60pt;
 	position: relative;
+    padding-top: 1.2em;
 	line-height: 1.2em;
-	position: relative;
 	/* left: 28%; */
 }
 
@@ -92,7 +91,7 @@ h1 strong {
 /* Section headers */
 h2 {
 	font-family: "Avenir Next",sans-serif;
-	font-size: 20pt;
+	font-size: 40pt;
 	text-align: center;
 	font-weight: normal;
 	display: flex;
